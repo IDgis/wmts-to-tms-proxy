@@ -3,7 +3,7 @@ package nl.idgis.proxy;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
-@ResponseStatus(value = HttpStatus.FAILED_DEPENDENCY)
+@ResponseStatus(value = HttpStatus.INTERNAL_SERVER_ERROR)
 public class WMTSException extends RuntimeException {
 
 	/**
