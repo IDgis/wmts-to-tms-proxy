@@ -2,6 +2,7 @@ package nl.idgis.proxy;
 
 import java.io.ByteArrayOutputStream;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
@@ -45,9 +46,18 @@ public class Controller implements ErrorController {
 	@RequestMapping(value = ERROR_PATH)
 	public ResponseEntity<String> error(HttpServletRequest request, HttpServletResponse response) {
 		log.error(String.format("error occured from URL: %s", request.getAttribute(RequestDispatcher.FORWARD_REQUEST_URI)));
-		ErrorResponse errorResponse = new ErrorResponse(response.getStatus(), getErrorAttributes(request, debug));
-		log.error(errorResponse.getMessage());
-		return ResponseEntity.status(response.getStatus()).body(errorResponse.getReponse());
+		
+		final int status = response.getStatus();
+		final ErrorResponse errorResponse = new ErrorResponse(status, getErrorAttributes(request, debug));
+		final String trace = errorResponse.getTrace();
+
+		log.error(trace);
+		
+		if (errorResponse.getTrace() != null) {
+			return ResponseEntity.status(status).body(errorResponse.getReponse());
+		} else {
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("HTTP 500");
+		}
 	}
 	
 	private Map<String, Object> getErrorAttributes(HttpServletRequest request, boolean includeStackTrace) {
@@ -64,15 +74,7 @@ public class Controller implements ErrorController {
 	public ResponseEntity<String> doGetTMSCapabilities(@PathVariable String serviceType, @PathVariable String version) {
 		log.info("requesting tile map capabilities");
 		
-		if (!"tms".equalsIgnoreCase(serviceType)) {
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-					.body(String.format("serviceType should be TMS instead of %s for this proxy", serviceType));
-		}
-
-		if (!"1.0.0".equals(version)) {
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-					.body(String.format("TMS version should be 1.0.0 instead of %s for this proxy", version));
-		}
+		validateRequest(serviceType, version);
 
 		return ResponseEntity.ok("TMS capabilities should appear here");
 	}
@@ -82,15 +84,7 @@ public class Controller implements ErrorController {
 			@PathVariable String version, @PathVariable String tileMap) {
 		log.info("requesting tile map resource file");
 		
-		if (!"tms".equalsIgnoreCase(serviceType)) {
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-					.body(String.format("serviceType should be TMS instead of %s for this proxy", serviceType));
-		}
-
-		if (!"1.0.0".equals(version)) {
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-					.body(String.format("TMS version should be 1.0.0 instead of %s for this proxy", version));
-		}
+		validateRequest(serviceType, version);
 		
 		final TileMapSource source = new TileMapSource(tileMap);
 		final String filePath = String.format("%s/%s", TILE_MAP_RESOURCE_FILE_FOLDER_PATH, source.getFileName());
@@ -111,9 +105,12 @@ public class Controller implements ErrorController {
 			}
 
 			xml = result.toString("UTF-8");
+		} catch (FileNotFoundException e) {
+			log.error(e.getMessage());
+			throw new TMRFException(String.format("tile map resource file %s not found", tileMap));
 		} catch (IOException e) {
 			log.error(e.getMessage());
-			throw new TMSException(String.format("unable to return tile map resource file: %s", e.getMessage()));
+			throw new TMRFException(String.format("unable to return tile map resource file: %s", e.getMessage()));
 		} finally {
 			if (in != null) {
 				try {
@@ -134,41 +131,28 @@ public class Controller implements ErrorController {
 			@PathVariable String type) {
 		log.info("requesting image");
 		
-		if (!"tms".equalsIgnoreCase(serviceType)) {
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-					.body(String.format("service type should be TMS instead of %s for this proxy", serviceType));
-		}
-
-		if (!"1.0.0".equals(version)) {
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-					.body(String.format("TMS version should be 1.0.0 instead of %s for this proxy", version));
-		}
+		validateRequest(serviceType, version);
 
 		if (!Utils.isInteger(x)) {
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-					.body(String.format("x should be an integer (current value: %s)", x));
+			throw new RequestException(String.format("x should be an integer (current value: %s)", x));
 		}
 
 		if (!Utils.isInteger(y)) {
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-					.body(String.format("y should be an integer (current value: %s)", y));
+			throw new RequestException(String.format("y should be an integer (current value: %s)", y));
 		}
 
 		if (!Utils.isInteger(z)) {
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-					.body(String.format("z should be an integer (current value: %s)", z));
+			throw new RequestException(String.format("z should be an integer (current value: %s)", z));
 		}
 
 		final String[] tileMapSpecs = tileMapString.split("@");
 
 		if (tileMapSpecs.length < 3) {
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-					.body(String.format("tile map %s should match format {name}@{srs}@{fileType}", tileMapString));
+			throw new RequestException(String.format("tile map %s should match format {name}@{srs}@{fileType}", tileMapString));
 		}
 
 		if (!tileMapSpecs[2].equalsIgnoreCase(type)) {
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-					.body(String.format("tile map type %s does not match file type %s", tileMapSpecs[2], type));
+			throw new RequestException(String.format("tile map type %s does not match file type %s", tileMapSpecs[2], type));
 		}
 
 		final TileMap tileMap = new TileMap(tileMapSpecs[0], tileMapSpecs[1], tileMapSpecs[2]);
@@ -296,6 +280,16 @@ public class Controller implements ErrorController {
 				wmtsVersion, tileMapName, tileMatrixSet, tileMapSRS, zoom, row, col, tileMapFileType);
 
 		return wmtsUrl;
+	}
+	
+	private void validateRequest(String serviceType, String version) {
+		if (!"tms".equalsIgnoreCase(serviceType)) {
+			throw new RequestException(String.format("service type should be TMS instead of %s for this proxy", serviceType));
+		}
+
+		if (!"1.0.0".equals(version)) {
+			throw new RequestException(String.format("TMS version should be 1.0.0 instead of %s for this proxy", version));
+		}
 	}
 
 }
