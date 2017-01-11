@@ -1,6 +1,10 @@
 package nl.idgis.proxy;
 
-public class WMTSException extends Exception {
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.ResponseStatus;
+
+@ResponseStatus(value = HttpStatus.FAILED_DEPENDENCY)
+public class WMTSException extends RuntimeException {
 
 	/**
 	 * 
@@ -10,7 +14,7 @@ public class WMTSException extends Exception {
 	private int status;
 
 	public WMTSException(int status) {
-		super(String.format("HTTP status %d", status));
+		super(String.format("WMTS returned HTTP status %d", status));
 		this.status = status;
 	}
 

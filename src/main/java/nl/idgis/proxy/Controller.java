@@ -6,9 +6,17 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.Map;
+
+import javax.servlet.RequestDispatcher;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.web.ErrorAttributes;
 import org.springframework.boot.autoconfigure.web.ErrorController;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
@@ -18,6 +26,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.context.request.RequestAttributes;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 @RestController
 public class Controller implements ErrorController {
@@ -25,22 +35,25 @@ public class Controller implements ErrorController {
 	private static final Logger log = LoggerFactory.getLogger(Controller.class);
 	private static final String ERROR_PATH = "/error";
 	private static final String TILE_MAP_RESOURCE_FILE_FOLDER_PATH = "./config/tileMapResourceFiles";
-
-//	@RequestMapping(value = "/")
-//	public ResponseEntity<String> noServiceType() {
-//		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("no service type specified");
-//	}
-//
-//	@RequestMapping(value = "/{serviceType}")
-//	public ResponseEntity<String> noVersion(@PathVariable String serviceType) {
-//		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("no version specified");
-//	}
-//
+	
+	@Value("${debug}")
+    private boolean debug;
+	
+	@Autowired
+    private ErrorAttributes errorAttributes;
 
 	@RequestMapping(value = ERROR_PATH)
-	public ResponseEntity<String> error() {
-		return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("HTTP 500: internal server error");
+	public ResponseEntity<String> error(HttpServletRequest request, HttpServletResponse response) {
+		log.error(String.format("error occured from URL: %s", request.getAttribute(RequestDispatcher.FORWARD_REQUEST_URI)));
+		ErrorResponse errorResponse = new ErrorResponse(response.getStatus(), getErrorAttributes(request, debug));
+		log.error(errorResponse.getMessage());
+		return ResponseEntity.status(response.getStatus()).body(errorResponse.getReponse());
 	}
+	
+	private Map<String, Object> getErrorAttributes(HttpServletRequest request, boolean includeStackTrace) {
+        RequestAttributes requestAttributes = new ServletRequestAttributes(request);
+        return errorAttributes.getErrorAttributes(requestAttributes, includeStackTrace);
+    }
 	
 	@Override
     public String getErrorPath() {
@@ -100,7 +113,7 @@ public class Controller implements ErrorController {
 			xml = result.toString("UTF-8");
 		} catch (IOException e) {
 			log.error(e.getMessage());
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(String.format("could not read file %s", source.getFileName()));
+			throw new TMSException(String.format("unable to return tile map resource file: %s", e.getMessage()));
 		} finally {
 			if (in != null) {
 				try {
@@ -118,7 +131,7 @@ public class Controller implements ErrorController {
 	@RequestMapping(value = "/{serviceType}/{version}/{tileMapString}/{z}/{x}/{y}.{type}")
 	public ResponseEntity<?> doGetTile(@PathVariable String serviceType, @PathVariable String version,
 			@PathVariable String tileMapString, @PathVariable String x, @PathVariable String y, @PathVariable String z,
-			@PathVariable String type) throws WMTSURLException {
+			@PathVariable String type) {
 		log.info("requesting image");
 		
 		if (!"tms".equalsIgnoreCase(serviceType)) {
@@ -220,10 +233,7 @@ public class Controller implements ErrorController {
 			
 			return new ResponseEntity<>(resource, headers, HttpStatus.OK);
 		} catch (WMTSURLException | IOException e) {
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-					.body(String.format("internal error: %s", e.getMessage()));
-		} catch (WMTSException e) {
-			return ResponseEntity.status(HttpStatus.valueOf(e.getStatus())).body(String.format("WMTS returned http status %d", e.getStatus()));
+			throw new TMSException(e);
 		}
 			
 //			return ResponseEntity.status(HttpStatus.PERMANENT_REDIRECT)
