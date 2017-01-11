@@ -4,7 +4,7 @@ buildscript {
     }
     dependencies {
         classpath 'org.springframework.boot:spring-boot-gradle-plugin:1.4.2.RELEASE'
-        // classpath 'org.hibernate.build.gradle:gradle-xjc-plugin:1.0.2.Final'
+        classpath 'org.hibernate.build.gradle:gradle-xjc-plugin:1.0.2.Final'
     }
 }
 
@@ -14,7 +14,7 @@ apply plugin: 'java'
 apply plugin: 'eclipse'
 apply plugin: 'idea'
 apply plugin: 'org.springframework.boot'
-// apply plugin: 'org.hibernate.build.gradle.xjc'
+apply plugin: 'org.hibernate.build.gradle.xjc'
 
 jar {
   manifest {
@@ -28,7 +28,6 @@ springBoot {
     executable = true
 }
 
-/*
 xjc {
     xjcTaskName = 'org.jvnet.jaxb2_commons.xjc.XJC2Task'
     outputDir = file('src/main/java')
@@ -40,7 +39,6 @@ xjc {
 		}
 	}
 }
-*/
 
 repositories {
     mavenCentral()
@@ -52,10 +50,7 @@ targetCompatibility = 1.7
 dependencies {
     compile('org.springframework.boot:spring-boot-starter-web')
     testCompile('org.springframework.boot:spring-boot-starter-test')
-    
-    /*
     xjc 'org.glassfish.jaxb:jaxb-xjc:2.2.11'
     xjc 'org.jvnet.jaxb2_commons:jaxb2-basics:0.9.3'
     xjc 'org.jvnet.jaxb2_commons:jaxb2-basics-ant:0.9.3'
-    */
 }
