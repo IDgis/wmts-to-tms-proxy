@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TileMap version="1.0.0" tilemapservice="http://pdok-tms.idgis.nl/TMS/1.0.0">
+	<Title>Luchtfoto Actueel Ortho 25cm RGB</Title>
+	<Abstract/>
+	<SRS>EPSG:28992</SRS>
+	<BoundingBox minx="-1.65729160235" miny="48.0405018704" maxx="12.4317272654" maxy="56.1105896442"/>
+	<Origin x="0" y="0"/>
+	<TileFormat width="256" height="256" mime-type="image/jpeg" extension="jpeg"/>
+	<TileSets profile="local">
+		<TileSet href="http://pdok-tms.idgis.nl/TMS/1.0.0/Actueel_ortho@EPSG:28992@jpeg/00" units-per-pixel="3440.64" order="0"/>
+		<TileSet href="http://pdok-tms.idgis.nl/TMS/1.0.0/Actueel_ortho@EPSG:28992@jpeg/01" units-per-pixel="1720.32" order="1"/>
+		<TileSet href="http://pdok-tms.idgis.nl/TMS/1.0.0/Actueel_ortho@EPSG:28992@jpeg/02" units-per-pixel="860.16" order="2"/>
+		<TileSet href="http://pdok-tms.idgis.nl/TMS/1.0.0/Actueel_ortho@EPSG:28992@jpeg/03" units-per-pixel="430.08" order="3"/>
+		<TileSet href="http://pdok-tms.idgis.nl/TMS/1.0.0/Actueel_ortho@EPSG:28992@jpeg/04" units-per-pixel="215.04" order="4"/>
+		<TileSet href="http://pdok-tms.idgis.nl/TMS/1.0.0/Actueel_ortho@EPSG:28992@jpeg/05" units-per-pixel="107.52" order="5"/>
+		<TileSet href="http://pdok-tms.idgis.nl/TMS/1.0.0/Actueel_ortho@EPSG:28992@jpeg/06" units-per-pixel="53.76" order="6"/>
+		<TileSet href="http://pdok-tms.idgis.nl/TMS/1.0.0/Actueel_ortho@EPSG:28992@jpeg/07" units-per-pixel="26.88" order="7"/>
+		<TileSet href="http://pdok-tms.idgis.nl/TMS/1.0.0/Actueel_ortho@EPSG:28992@jpeg/08" units-per-pixel="13.44" order="8"/>
+		<TileSet href="http://pdok-tms.idgis.nl/TMS/1.0.0/Actueel_ortho@EPSG:28992@jpeg/09" units-per-pixel="6.72" order="9"/>
+		<TileSet href="http://pdok-tms.idgis.nl/TMS/1.0.0/Actueel_ortho@EPSG:28992@jpeg/10" units-per-pixel="3.36" order="10"/>
+		<TileSet href="http://pdok-tms.idgis.nl/TMS/1.0.0/Actueel_ortho@EPSG:28992@jpeg/11" units-per-pixel="1.68" order="11"/>
+		<TileSet href="http://pdok-tms.idgis.nl/TMS/1.0.0/Actueel_ortho@EPSG:28992@jpeg/12" units-per-pixel="0.84" order="12"/>
+		<TileSet href="http://pdok-tms.idgis.nl/TMS/1.0.0/Actueel_ortho@EPSG:28992@jpeg/13" units-per-pixel="0.42" order="13"/>
+		<TileSet href="http://pdok-tms.idgis.nl/TMS/1.0.0/Actueel_ortho@EPSG:28992@jpeg/14" units-per-pixel="0.21" order="14"/>
+		<TileSet href="http://pdok-tms.idgis.nl/TMS/1.0.0/Actueel_ortho@EPSG:28992@jpeg/15" units-per-pixel="0.105" order="15"/>
+		<TileSet href="http://pdok-tms.idgis.nl/TMS/1.0.0/Actueel_ortho@EPSG:28992@jpeg/16" units-per-pixel="0.5025" order="16"/>
+	</TileSets>
+</TileMap>

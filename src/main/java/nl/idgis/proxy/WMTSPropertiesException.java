@@ -10,5 +10,9 @@ public class WMTSPropertiesException extends Exception {
 	public WMTSPropertiesException(String message) {
 		super(message);
 	}
+
+	public WMTSPropertiesException(String message, Exception e) {
+		super (message, e);
+	}
 	
 }

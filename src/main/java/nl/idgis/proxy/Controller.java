@@ -35,7 +35,6 @@ public class Controller implements ErrorController {
 
 	private static final Logger log = LoggerFactory.getLogger(Controller.class);
 	private static final String ERROR_PATH = "/error";
-	private static final String TILE_MAP_RESOURCE_FILE_FOLDER_PATH = "./config/tileMapResourceFiles";
 	
 	@Value("${debug}")
     private boolean debug;
@@ -87,7 +86,7 @@ public class Controller implements ErrorController {
 		validateRequest(serviceType, version);
 		
 		final TileMapSource source = new TileMapSource(tileMap);
-		final String filePath = String.format("%s/%s", TILE_MAP_RESOURCE_FILE_FOLDER_PATH, source.getFileName());
+		final String filePath = String.format("%s/%s", TileMapSource.TILE_MAP_RESOURCE_FILE_FOLDER_PATH, source.getFileName());
 		
 		String xml;
 		
@@ -125,9 +124,9 @@ public class Controller implements ErrorController {
 		return ResponseEntity.ok(xml);
 	}
 
-	@RequestMapping(value = "/{serviceType}/{version}/{tileMapString}/{z}/{x}/{y}.{type}")
+	@RequestMapping(value = "/{serviceType}/{version}/{tileMapString}/{zoomLevel}/{x}/{y}.{type}")
 	public ResponseEntity<?> doGetTile(@PathVariable String serviceType, @PathVariable String version,
-			@PathVariable String tileMapString, @PathVariable String x, @PathVariable String y, @PathVariable String z,
+			@PathVariable String tileMapString, @PathVariable String zoomLevel, @PathVariable String x, @PathVariable String y,
 			@PathVariable String type) {
 		log.info("requesting image");
 		
@@ -139,10 +138,6 @@ public class Controller implements ErrorController {
 
 		if (!Utils.isInteger(y)) {
 			throw new RequestException(String.format("y should be an integer (current value: %s)", y));
-		}
-
-		if (!Utils.isInteger(z)) {
-			throw new RequestException(String.format("z should be an integer (current value: %s)", z));
 		}
 
 		final String[] tileMapSpecs = tileMapString.split("@");
@@ -159,21 +154,18 @@ public class Controller implements ErrorController {
 		
 		final int ix = Integer.parseInt(x);
 		final int iy = Integer.parseInt(y);
-		final int iz = Integer.parseInt(z);
 
 		log.info(String.format("tms x: %s", x));
 		log.info(String.format("tms y: %s", y));
-		log.info(String.format("tms z: %s", z));
+		log.info(String.format("zoomlevel: %s", zoomLevel));
+		
+		final TileMapSource source = new TileMapSource(tileMapString);
+		
+		final int iz = source.getZoom(zoomLevel);
 		
 		Tile tile;
 		
-		try {
-			tile = new Tile(ix, iy, iz);
-		} catch (TMSException e) {
-			return ResponseEntity.badRequest().body(e.getMessage());
-		}
-		
-		log.info("request is valid");
+		tile = new Tile(ix, iy, iz, zoomLevel);
 		
 		WMTSProperties wmtsProps = WMTSPropertiesContainer.getProperties(tileMapString.replace(":", "%3A"));
 		
@@ -184,7 +176,7 @@ public class Controller implements ErrorController {
 		try {
 			
 			String url = createWMTSURL(serviceType, tileMap, tile,
-				wmtsProps.getBaseUrl(), wmtsProps.getVersion(), wmtsProps.getMatrixMapping());
+				wmtsProps.getBaseUrl(), wmtsProps.getVersion(), tileMap.getSrs());
 			
 			log.info(String.format("wmts url: %s", url));
 			
@@ -228,7 +220,7 @@ public class Controller implements ErrorController {
 	}
 
 	private String createWMTSURL(String serviceType, TileMap tileMap, Tile tile, String wmtsBaseUrl,
-			String wmtsVersion, MatrixMapping mapping) throws WMTSURLException {
+			String wmtsVersion, String tileMatrixSet) throws WMTSURLException {
 		final String tileMapName = tileMap.getSource().getName();
 		final String tileMapSRS = tileMap.getSrs();
 		final String tileMapFileType = tileMap.getFileType();
@@ -258,8 +250,6 @@ public class Controller implements ErrorController {
 		}
 
 		log.info("creating WMTS URL with base URL: " + wmtsBaseUrl);
-		
-		String tileMatrixSet = mapping.get(tileMapSRS);
 
 		if (tileMatrixSet == null) {
 			throw new WMTSURLException(String.format("TileMatrixSet not resolved with SRS %s", tileMapSRS));
@@ -269,15 +259,15 @@ public class Controller implements ErrorController {
 		
 		int row = Utils.wmtsRow(tile.getY(), tile.getZ());
 		int col = tile.getX();
-		int zoom = tile.getZ();
+		String tileMatrix = tile.getZoomLevel();
 		
 		log.info(String.format("wmts row: %d", row));
 		log.info(String.format("wmts col: %d", col));
-		log.info(String.format("wmts zoom: %d", zoom));
+		log.info(String.format("wmts tileMatrix: %s", tileMatrix));
 
 		wmtsUrl += String.format(
-				"SERVICE=WMTS&VERSION=%1$s&REQUEST=GetTile&LAYER=%2$s&STYLE=default&TILEMATRIXSET=%3$s&TILEMATRIX=%4$s:%5$d&TILEROW=%6$d&TILECOL=%7$d&FORMAT=image/%8$s",
-				wmtsVersion, tileMapName, tileMatrixSet, tileMapSRS, zoom, row, col, tileMapFileType);
+				"SERVICE=WMTS&VERSION=%1$s&REQUEST=GetTile&LAYER=%2$s&STYLE=default&TILEMATRIXSET=%3$s&TILEMATRIX=%4$s&TILEROW=%5$d&TILECOL=%6$d&FORMAT=image/%7$s",
+				wmtsVersion, tileMapName, tileMatrixSet, tileMatrix, row, col, tileMapFileType);
 
 		return wmtsUrl;
 	}

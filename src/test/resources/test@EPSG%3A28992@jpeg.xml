@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TileMap version="1.0.0" tilemapservice="http://localhost/TMS/1.0.0">
+	<Title>Luchtfoto Actueel Ortho 25cm RGB</Title>
+	<Abstract/>
+	<SRS>EPSG:28992</SRS>
+	<BoundingBox minx="-1.65729160235" miny="48.0405018704" maxx="12.4317272654" maxy="56.1105896442"/>
+	<Origin x="0" y="0"/>
+	<TileFormat width="256" height="256" mime-type="image/jpeg" extension="jpeg"/>
+	<TileSets profile="local">
+		<TileSet href="http://localhost/TMS/1.0.0/Actueel_ortho@EPSG:28992@jpeg/A" units-per-pixel="3440.64" order="0"/>
+		<TileSet href="http://localhost/TMS/1.0.0/Actueel_ortho@EPSG:28992@jpeg/B" units-per-pixel="1720.32" order="1"/>
+		<TileSet href="http://localhost/TMS/1.0.0/Actueel_ortho@EPSG:28992@jpeg/C" units-per-pixel="860.16" order="2"/>
+		<TileSet href="http://localhost/TMS/1.0.0/Actueel_ortho@EPSG:28992@jpeg/D" units-per-pixel="430.08" order="3"/>
+		<TileSet href="http://localhost/TMS/1.0.0/Actueel_ortho@EPSG:28992@jpeg/E" units-per-pixel="215.04" order="4"/>
+		<TileSet href="http://localhost/TMS/1.0.0/Actueel_ortho@EPSG:28992@jpeg/F" units-per-pixel="107.52" order="5"/>
+		<TileSet href="http://localhost/TMS/1.0.0/Actueel_ortho@EPSG:28992@jpeg/G" units-per-pixel="53.76" order="6"/>
+		<TileSet href="http://localhost/TMS/1.0.0/Actueel_ortho@EPSG:28992@jpeg/H" units-per-pixel="26.88" order="7"/>
+		<TileSet href="http://localhost/TMS/1.0.0/Actueel_ortho@EPSG:28992@jpeg/I" units-per-pixel="13.44" order="8"/>
+		<TileSet href="http://localhost/TMS/1.0.0/Actueel_ortho@EPSG:28992@jpeg/J" units-per-pixel="6.72" order="9"/>
+		<TileSet href="http://localhost/TMS/1.0.0/Actueel_ortho@EPSG:28992@jpeg/K" units-per-pixel="3.36" order="10"/>
+		<TileSet href="http://localhost/TMS/1.0.0/Actueel_ortho@EPSG:28992@jpeg/L" units-per-pixel="1.68" order="11"/>
+		<TileSet href="http://localhost/TMS/1.0.0/Actueel_ortho@EPSG:28992@jpeg/M" units-per-pixel="0.84" order="12"/>
+		<TileSet href="http://localhost/TMS/1.0.0/Actueel_ortho@EPSG:28992@jpeg/N" units-per-pixel="0.42" order="13"/>
+		<TileSet href="http://localhost/TMS/1.0.0/Actueel_ortho@EPSG:28992@jpeg/O" units-per-pixel="0.21" order="14"/>
+		<TileSet href="http://localhost/TMS/1.0.0/Actueel_ortho@EPSG:28992@jpeg/P" units-per-pixel="0.105" order="15"/>
+		<TileSet href="http://localhost/TMS/1.0.0/Actueel_ortho@EPSG:28992@jpeg/Q" units-per-pixel="0.5025" order="16"/>
+	</TileSets>
+</TileMap>
