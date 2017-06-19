@@ -16,6 +16,7 @@ apply plugin: 'org.springframework.boot'
 
 springBoot {
     executable = true
+    mainClass = 'nl.idgis.proxy.Application'
 }
 
 repositories {
