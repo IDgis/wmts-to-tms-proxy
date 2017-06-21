@@ -1,15 +1,38 @@
 package nl.idgis.proxy;
 
+import nl.idgis.proxy.mapping.MatrixMapping;
+import nl.idgis.proxy.mapping.MatrixMappings;
+
 public class TileMap {
 
+	private String name;
 	private String srs;
 	private String fileType;
-	private TileMapSource source;
 	
 	public TileMap(String name, String srs, String fileType) {
+		this.name = name;
 		this.srs = srs;
 		this.fileType = fileType;
-		this.source = new TileMapSource(name);
+	}
+
+	public String getMatrix(int z) throws WMTSPropertiesException {
+		final String fullName = name + "@" + srs + "@" + fileType;
+		
+		MatrixMapping mapping = MatrixMappings.getMapping(fullName);
+		
+		if (mapping == null) {
+			throw new WMTSPropertiesException("no mapping found for " + fullName);
+		}
+		
+		return mapping.getMatrix(z);
+	}
+	
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
 	}
 
 	public String getSrs() {
@@ -26,14 +49,6 @@ public class TileMap {
 
 	public void setFileType(String fileType) {
 		this.fileType = fileType;
-	}
-
-	public TileMapSource getSource() {
-		return source;
-	}
-
-	public void setSource(TileMapSource source) {
-		this.source = source;
 	}
 	
 }

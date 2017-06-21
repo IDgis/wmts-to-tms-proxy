@@ -35,6 +35,7 @@ public class Controller implements ErrorController {
 
 	private static final Logger log = LoggerFactory.getLogger(Controller.class);
 	private static final String ERROR_PATH = "/error";
+	private static final String TILE_MAPS_PATH = "config/tileMapResourceFiles";
 	
 	@Value("${debug}")
     private boolean debug;
@@ -80,13 +81,12 @@ public class Controller implements ErrorController {
 
 	@RequestMapping(value = "/{serviceType}/{version}/{tileMap}")
 	public ResponseEntity<String> doGetTileMapCapabilities(@PathVariable String serviceType,
-			@PathVariable String version, @PathVariable String tileMap) {
+			@PathVariable String version, @PathVariable String tileMap) throws TMRFException {
 		log.info("requesting tile map resource file");
 		
 		validateRequest(serviceType, version);
-		
-		final TileMapSource source = new TileMapSource(tileMap);
-		final String filePath = String.format("%s/%s", TileMapSource.TILE_MAP_RESOURCE_FILE_FOLDER_PATH, source.getFileName());
+
+		final String filePath = String.format("%s/%s.xml", TILE_MAPS_PATH, tileMap.replace(":", "%3A"));
 		
 		String xml;
 		
@@ -105,7 +105,7 @@ public class Controller implements ErrorController {
 
 			xml = result.toString("UTF-8");
 		} catch (FileNotFoundException e) {
-			log.error(e.getMessage());
+			log.error("file " + filePath + " not found", e);
 			throw new TMRFException(String.format("tile map resource file %s not found", tileMap));
 		} catch (IOException e) {
 			log.error(e.getMessage());
@@ -124,9 +124,9 @@ public class Controller implements ErrorController {
 		return ResponseEntity.ok(xml);
 	}
 
-	@RequestMapping(value = "/{serviceType}/{version}/{tileMapString}/{zoomLevel}/{x}/{y}.{type}")
+	@RequestMapping(value = "/{serviceType}/{version}/{tileMapString}/{z}/{x}/{y}.{type}")
 	public ResponseEntity<?> doGetTile(@PathVariable String serviceType, @PathVariable String version,
-			@PathVariable String tileMapString, @PathVariable String zoomLevel, @PathVariable String x, @PathVariable String y,
+			@PathVariable String tileMapString, @PathVariable String z, @PathVariable String x, @PathVariable String y,
 			@PathVariable String type) {
 		log.info("requesting image");
 		
@@ -154,18 +154,15 @@ public class Controller implements ErrorController {
 		
 		final int ix = Integer.parseInt(x);
 		final int iy = Integer.parseInt(y);
+		final int iz = Integer.parseInt(z);
 
 		log.info(String.format("tms x: %s", x));
 		log.info(String.format("tms y: %s", y));
-		log.info(String.format("zoomlevel: %s", zoomLevel));
-		
-		final TileMapSource source = new TileMapSource(tileMapString);
-		
-		final int iz = source.getZoom(zoomLevel);
+		log.info(String.format("tms z: %s", z));
 		
 		Tile tile;
 		
-		tile = new Tile(ix, iy, iz, zoomLevel);
+		tile = new Tile(ix, iy, iz);
 		
 		WMTSProperties wmtsProps = WMTSPropertiesContainer.getProperties(tileMapString.replace(":", "%3A"));
 		
@@ -208,7 +205,7 @@ public class Controller implements ErrorController {
 			headers.setContentType(mediaType);
 			
 			return new ResponseEntity<>(resource, headers, HttpStatus.OK);
-		} catch (WMTSURLException | IOException e) {
+		} catch (WMTSURLException | IOException | WMTSPropertiesException e) {
 			throw new TMSException(e);
 		}
 			
@@ -220,8 +217,8 @@ public class Controller implements ErrorController {
 	}
 
 	private String createWMTSURL(String serviceType, TileMap tileMap, Tile tile, String wmtsBaseUrl,
-			String wmtsVersion, String tileMatrixSet) throws WMTSURLException {
-		final String tileMapName = tileMap.getSource().getName();
+			String wmtsVersion, String tileMatrixSet) throws WMTSURLException, WMTSPropertiesException {
+		final String tileMapName = tileMap.getName();
 		final String tileMapSRS = tileMap.getSrs();
 		final String tileMapFileType = tileMap.getFileType();
 
@@ -259,7 +256,7 @@ public class Controller implements ErrorController {
 		
 		int row = Utils.wmtsRow(tile.getY(), tile.getZ());
 		int col = tile.getX();
-		String tileMatrix = tile.getZoomLevel();
+		String tileMatrix = tileMap.getMatrix(tile.getZ());
 		
 		log.info(String.format("wmts row: %d", row));
 		log.info(String.format("wmts col: %d", col));

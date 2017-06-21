@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
  * TileMap resource file exception
  */
 @ResponseStatus(code = HttpStatus.NOT_FOUND)
-public class TMRFException extends RuntimeException {
+public class TMRFException extends Exception {
 
 	/**
 	 * 
