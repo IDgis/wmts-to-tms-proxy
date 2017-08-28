@@ -11,7 +11,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-import nl.idgis.proxy.tmrf.TileMapResourceFiles;
+import nl.idgis.proxy.mapping.MatrixMapping;
+import nl.idgis.proxy.mapping.MatrixMappings;
 
 @SpringBootApplication
 public class Application {
@@ -51,10 +52,17 @@ public class Application {
 						throw new WMTSPropertiesException(String.format("tile map resource file %s has no corresponding properties file", file.getName()));
 					}
 					
-					TileMapResourceFiles.add(tileMap.replace("%3A", ":"), new FileInputStream(file));
+					WMTSProperties properties = WMTSPropertiesContainer.getProperties(tileMap);
+					
+					if (properties == null) {
+						throw new WMTSPropertiesException("no properties found for tile map " + tileMap);
+					}
+
+					MatrixMappings.add(tileMap.replace("%3A", ":"), new MatrixMapping(properties.getMatrixMapping()));
 				}
 			}
-		} catch (WMTSPropertiesException | FileNotFoundException e) {
+			
+		} catch (WMTSPropertiesException e) {
 			log.error("could not load WMTS properties", e);
 			shouldRun = false;
 		}
@@ -81,6 +89,7 @@ public class Application {
 				String baseUrl = props.getProperty(WMTSProperties.BASE_URL);
 				String version = props.getProperty(WMTSProperties.VERSION);
 				String tileMap = file.getName().substring(0, file.getName().lastIndexOf('.'));
+				String matrixMapping = props.getProperty(WMTSProperties.MATRIX_MAPPING);
 				
 				if (baseUrl == null || baseUrl.isEmpty()) {
 					throw new WMTSPropertiesException(String.format("%s property is null or empty", WMTSProperties.BASE_URL));
@@ -91,10 +100,16 @@ public class Application {
 					version = "1.0.0";
 				}
 				
+				if (matrixMapping == null || matrixMapping.isEmpty()) {
+					log.warn(String.format("%s property is null or empty (set to default 0=0;1=1 etc)", WMTSProperties.VERSION));
+					matrixMapping = "0=0;1=1;2=2;3=3;4=4;5=5;6=6;7=7;8=8;9=9;10=10;11=11;12=12;13=13;14=14;15=15;16=16";
+				}
+				
 				WMTSProperties wmtsProps = new WMTSProperties();
 				wmtsProps.setBaseUrl(baseUrl);
 				wmtsProps.setVersion(version);
 				wmtsProps.setTileMap(tileMap);
+				wmtsProps.setMatrixMapping(matrixMapping);
 				
 				WMTSPropertiesContainer.addProperties(wmtsProps);
 			}

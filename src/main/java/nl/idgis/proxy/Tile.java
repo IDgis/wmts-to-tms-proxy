@@ -7,9 +7,8 @@ public class Tile {
 	private int x;
 	private int y;
 	private int z;
-	private String zoomLevel;
 
-	public Tile(int x, int y, int z, String zoomLevel) throws TMSException {
+	public Tile(int x, int y, int z) throws TMSException {
 		final int yMax = Utils.yMax(z);
 		
 		if (x > yMax || y > yMax || x < 0 || y < 0 || z < 0) {
@@ -19,7 +18,6 @@ public class Tile {
 		this.x = x;
 		this.y = y;
 		this.z = z;
-		this.zoomLevel = zoomLevel;
 	}
 
 	public int getX() {
@@ -44,14 +42,6 @@ public class Tile {
 
 	public void setZ(int z) {
 		this.z = z;
-	}
-
-	public String getZoomLevel() {
-		return zoomLevel;
-	}
-
-	public void setZoomLevel(String zoomLevel) {
-		this.zoomLevel = zoomLevel;
 	}
 	
 }
