@@ -22,7 +22,5 @@
         <TileSet href="http://pdok-tms.idgis.nl/TMS/1.0.0/brtachtergrondkaart@EPSG:28992@png/12" units-per-pixel="0.84" order="12"/>
         <TileSet href="http://pdok-tms.idgis.nl/TMS/1.0.0/brtachtergrondkaart@EPSG:28992@png/13" units-per-pixel="0.42" order="13"/>
         <TileSet href="http://pdok-tms.idgis.nl/TMS/1.0.0/brtachtergrondkaart@EPSG:28992@png/14" units-per-pixel="0.21" order="14"/>
-        <TileSet href="http://pdok-tms.idgis.nl/TMS/1.0.0/brtachtergrondkaart@EPSG:28992@png/15" units-per-pixel="0.105" order="15"/>
-        <TileSet href="http://pdok-tms.idgis.nl/TMS/1.0.0/brtachtergrondkaart@EPSG:28992@png/16" units-per-pixel="0.5025" order="16"/>
     </TileSets>
 </TileMap>
