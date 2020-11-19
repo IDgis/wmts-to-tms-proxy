@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <TileMap version="1.0.0" tilemapservice="http://rijssen-holten.ecw-hosting.nl/tms/TMS/1.0.0">
-	<Title>Luchtfoto Rijssen-Holten 2016</Title>
+	<Title>Luchtfoto Rijssen-Holten 2018</Title>
 	<Abstract/>
 	<SRS>EPSG:28992</SRS>
 	<BoundingBox minx="-285401.92" miny="22598.08" maxx="595401.9199999999" maxy="903401.9199999999"/>
