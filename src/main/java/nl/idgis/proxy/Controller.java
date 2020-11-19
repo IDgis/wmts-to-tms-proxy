@@ -119,7 +119,7 @@ public class Controller implements ErrorController {
 	@RequestMapping(value = "/{serviceType}/{version}/{tileMap}")
 	public ResponseEntity<String> doGetTileMapCapabilities(@PathVariable String serviceType,
 			@PathVariable String version, @PathVariable String tileMap) throws TMRFException {
-		log.info("requesting tile map resource file");
+		log.info(String.format("requesting tile map resource file for: %s", tileMap));
 		
 		validateRequest(serviceType, version);
 
@@ -166,7 +166,7 @@ public class Controller implements ErrorController {
 	public ResponseEntity<?> doGetTile(@PathVariable String serviceType, @PathVariable String version,
 			@PathVariable String tileMapString, @PathVariable String z, @PathVariable String x, @PathVariable String y,
 			@PathVariable String type) {
-		log.info("requesting image");
+		log.info(String.format("requesting image for: %s", tileMapString));
 		
 		validateRequest(serviceType, version);
 
