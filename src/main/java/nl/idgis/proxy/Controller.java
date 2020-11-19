@@ -36,6 +36,8 @@ public class Controller implements ErrorController {
 	private static final Logger log = LoggerFactory.getLogger(Controller.class);
 	private static final String ERROR_PATH = "/error";
 	private static final String TILE_MAPS_PATH = "config/tileMapResourceFiles";
+	private static final String CAPABILITIES_PATH = "config/Capabilities";
+	private static final String CAPABILITIES = "Capabilities.xml";
 	
 	@Value("${debug}")
     private boolean debug;
@@ -71,12 +73,47 @@ public class Controller implements ErrorController {
     }
 	
 	@RequestMapping(value = "/{serviceType}/{version}")
-	public ResponseEntity<String> doGetTMSCapabilities(@PathVariable String serviceType, @PathVariable String version) {
+	public ResponseEntity<String> doGetTMSCapabilities(@PathVariable String serviceType, @PathVariable String version) throws TMRFException {
 		log.info("requesting tile map capabilities");
 		
 		validateRequest(serviceType, version);
 
-		return ResponseEntity.ok("TMS capabilities should appear here");
+        final String filePath = String.format("%s/%s", CAPABILITIES_PATH, CAPABILITIES);
+        String xml;
+        InputStream in = null;
+
+        try {
+            in = new FileInputStream(filePath);
+
+            ByteArrayOutputStream result = new ByteArrayOutputStream();
+            byte[] buffer = new byte[1024];
+            int length;
+
+            while ((length = in.read(buffer)) != -1) {
+                result.write(buffer, 0, length);
+            }
+
+            xml = result.toString("UTF-8");
+        } catch (FileNotFoundException e) {
+            log.error("file " + filePath + " not found", e);
+            throw new TMRFException("Capabilities document not found");
+        } catch (IOException e) {
+            log.error(e.getMessage());
+            throw new TMRFException("Unable to return capabilities document");
+        } finally {
+            if (in != null) {
+                try {
+                    in.close();
+                } catch (IOException e) {
+                    log.warn("input stream from %s was not closed: %s", filePath, e.getMessage());
+                }
+            }
+        }
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Content-Type", "application/xml");
+        return ResponseEntity.ok().headers(headers).body(xml);
+
 	}
 
 	@RequestMapping(value = "/{serviceType}/{version}/{tileMap}")
@@ -119,9 +156,10 @@ public class Controller implements ErrorController {
 				}
 			}
 		}
-		
 
-		return ResponseEntity.ok(xml);
+		HttpHeaders headers = new HttpHeaders();
+		headers.add("Content-Type", "application/xml");
+		return ResponseEntity.ok().headers(headers).body(xml);
 	}
 
 	@RequestMapping(value = "/{serviceType}/{version}/{tileMapString}/{z}/{x}/{y}.{type}")
