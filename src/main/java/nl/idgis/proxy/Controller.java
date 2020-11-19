@@ -36,6 +36,8 @@ public class Controller implements ErrorController {
 	private static final Logger log = LoggerFactory.getLogger(Controller.class);
 	private static final String ERROR_PATH = "/error";
 	private static final String TILE_MAPS_PATH = "config/tileMapResourceFiles";
+	private static final String CAPABILITIES_PATH = "config/Capabilities";
+	private static final String CAPABILITIES = "Capabilities.xml";
 	
 	@Value("${debug}")
     private boolean debug;
@@ -71,18 +73,53 @@ public class Controller implements ErrorController {
     }
 	
 	@RequestMapping(value = "/{serviceType}/{version}")
-	public ResponseEntity<String> doGetTMSCapabilities(@PathVariable String serviceType, @PathVariable String version) {
+	public ResponseEntity<String> doGetTMSCapabilities(@PathVariable String serviceType, @PathVariable String version) throws TMRFException {
 		log.info("requesting tile map capabilities");
 		
 		validateRequest(serviceType, version);
 
-		return ResponseEntity.ok("TMS capabilities should appear here");
+        final String filePath = String.format("%s/%s", CAPABILITIES_PATH, CAPABILITIES);
+        String xml;
+        InputStream in = null;
+
+        try {
+            in = new FileInputStream(filePath);
+
+            ByteArrayOutputStream result = new ByteArrayOutputStream();
+            byte[] buffer = new byte[1024];
+            int length;
+
+            while ((length = in.read(buffer)) != -1) {
+                result.write(buffer, 0, length);
+            }
+
+            xml = result.toString("UTF-8");
+        } catch (FileNotFoundException e) {
+            log.error("file " + filePath + " not found", e);
+            throw new TMRFException("Capabilities document not found");
+        } catch (IOException e) {
+            log.error(e.getMessage());
+            throw new TMRFException("Unable to return capabilities document");
+        } finally {
+            if (in != null) {
+                try {
+                    in.close();
+                } catch (IOException e) {
+                    log.warn("input stream from %s was not closed: %s", filePath, e.getMessage());
+                }
+            }
+        }
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Content-Type", "application/xml");
+        return ResponseEntity.ok().headers(headers).body(xml);
+
 	}
 
 	@RequestMapping(value = "/{serviceType}/{version}/{tileMap}")
 	public ResponseEntity<String> doGetTileMapCapabilities(@PathVariable String serviceType,
 			@PathVariable String version, @PathVariable String tileMap) throws TMRFException {
-		log.info("requesting tile map resource file");
+		log.info(String.format("requesting tile map resource file for: %s", tileMap));
 		
 		validateRequest(serviceType, version);
 
@@ -119,16 +156,17 @@ public class Controller implements ErrorController {
 				}
 			}
 		}
-		
 
-		return ResponseEntity.ok(xml);
+		HttpHeaders headers = new HttpHeaders();
+		headers.add("Content-Type", "application/xml");
+		return ResponseEntity.ok().headers(headers).body(xml);
 	}
 
 	@RequestMapping(value = "/{serviceType}/{version}/{tileMapString}/{z}/{x}/{y}.{type}")
 	public ResponseEntity<?> doGetTile(@PathVariable String serviceType, @PathVariable String version,
 			@PathVariable String tileMapString, @PathVariable String z, @PathVariable String x, @PathVariable String y,
 			@PathVariable String type) {
-		log.info("requesting image");
+		log.info(String.format("requesting image for: %s", tileMapString));
 		
 		validateRequest(serviceType, version);
 
@@ -156,9 +194,9 @@ public class Controller implements ErrorController {
 		final int iy = Integer.parseInt(y);
 		final int iz = Integer.parseInt(z);
 
-		log.info(String.format("tms x: %s", x));
-		log.info(String.format("tms y: %s", y));
-		log.info(String.format("tms z: %s", z));
+		log.debug(String.format("tms x: %s", x));
+		log.debug(String.format("tms y: %s", y));
+		log.debug(String.format("tms z: %s", z));
 		
 		Tile tile;
 		
@@ -175,7 +213,7 @@ public class Controller implements ErrorController {
 			String url = createWMTSURL(serviceType, tileMap, tile,
 				wmtsProps.getBaseUrl(), wmtsProps.getVersion(), tileMap.getSrs());
 			
-			log.info(String.format("wmts url: %s", url));
+			log.debug(String.format("wmts url: %s", url));
 			
 			HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
 			connection.setRequestMethod("GET");
@@ -246,7 +284,7 @@ public class Controller implements ErrorController {
 			throw new WMTSURLException("TileMap file type is null or empty");
 		}
 
-		log.info("creating WMTS URL with base URL: " + wmtsBaseUrl);
+		log.debug("creating WMTS URL with base URL: " + wmtsBaseUrl);
 
 		if (tileMatrixSet == null) {
 			throw new WMTSURLException(String.format("TileMatrixSet not resolved with SRS %s", tileMapSRS));
@@ -258,9 +296,9 @@ public class Controller implements ErrorController {
 		int col = tile.getX();
 		String tileMatrix = tileMap.getMatrix(tile.getZ());
 		
-		log.info(String.format("wmts row: %d", row));
-		log.info(String.format("wmts col: %d", col));
-		log.info(String.format("wmts tileMatrix: %s", tileMatrix));
+		log.debug(String.format("wmts row: %d", row));
+		log.debug(String.format("wmts col: %d", col));
+		log.debug(String.format("wmts tileMatrix: %s", tileMatrix));
 
 		wmtsUrl += String.format(
 				"SERVICE=WMTS&VERSION=%1$s&REQUEST=GetTile&LAYER=%2$s&STYLE=default&TILEMATRIXSET=%3$s&TILEMATRIX=%4$s&TILEROW=%5$d&TILECOL=%6$d&FORMAT=image/%7$s",
