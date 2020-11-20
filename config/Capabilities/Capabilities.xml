@@ -1,10 +1,10 @@
-<TileMapService version="1.0.0" services="http://pdok-tms.idgis.nl/TMS/1.0.0/">
+<TileMapService version="1.0.0" services="https://pdok-tms.idgis.nl/TMS/1.0.0/">
     <Title>Tile Map Service</Title>
     <Abstract>Tile Map Services</Abstract>
     <TileMaps>
-        <TileMap title="Actueel_ortho25" srs="EPSG:28992" profile="local" href="http://pdok-tms.idgis.nl/TMS/1.0.0/Actueel_ortho25@EPSG:28992@jpeg"/>
-        <TileMap title="brtachtergrondkaart" srs="EPSG:28992" profile="local" href="http://pdok-tms.idgis.nl/TMS/1.0.0/brtachtergrondkaart@EPSG:28992@png"/>
-        <TileMap title="Rijssen_Holten" srs="EPSG:28992" profile="local" href="http://rijssen-holten.ecw-hosting.nl/tms/TMS/1.0.0/Rijssen_Holten@NLDEPSG28992Scale@jpg"/>
-        <TileMap title="Soest_actueel" srs="EPSG:28992" profile="local" href="http://soest.ecw-hosting.nl/tms/TMS/1.0.0/Soest_actueel@NLDEPSG28992Scale@jpg"/>
+        <TileMap title="Actueel_ortho25" srs="EPSG:28992" profile="local" href="https://pdok-tms.idgis.nl/TMS/1.0.0/Actueel_ortho25@EPSG:28992@jpeg"/>
+        <TileMap title="brtachtergrondkaart" srs="EPSG:28992" profile="local" href="https://pdok-tms.idgis.nl/TMS/1.0.0/brtachtergrondkaart@EPSG:28992@png"/>
+        <TileMap title="Rijssen_Holten" srs="EPSG:28992" profile="local" href="https://rijssen-holten.ecw-hosting.nl/tms/TMS/1.0.0/Rijssen_Holten@NLDEPSG28992Scale@jpg"/>
+        <TileMap title="Soest_actueel" srs="EPSG:28992" profile="local" href="https://soest.ecw-hosting.nl/tms/TMS/1.0.0/Soest_actueel@NLDEPSG28992Scale@jpg"/>
     </TileMaps>
 </TileMapService>
