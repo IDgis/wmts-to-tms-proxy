@@ -8,6 +8,7 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.http.HttpServletRequest;
@@ -24,7 +25,9 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.request.RequestAttributes;
@@ -163,10 +166,16 @@ public class Controller implements ErrorController {
 	}
 
 	@RequestMapping(value = "/{serviceType}/{version}/{tileMapString}/{z}/{x}/{y}.{type}")
-	public ResponseEntity<?> doGetTile(@PathVariable String serviceType, @PathVariable String version,
-			@PathVariable String tileMapString, @PathVariable String z, @PathVariable String x, @PathVariable String y,
-			@PathVariable String type) {
+	public ResponseEntity<?> doGetTile(@RequestHeader MultiValueMap<String, String> requestHeaders, @PathVariable String serviceType, @PathVariable String version,
+									   @PathVariable String tileMapString, @PathVariable String z, @PathVariable String x, @PathVariable String y,
+									   @PathVariable String type) {
 		log.info(String.format("requesting image for: %s", tileMapString));
+
+		// Log request url and headers
+		String requestUrl = String.format("request: /%s/%s/%s/%s/%s/%s.%s", serviceType, version, tileMapString, z, x, y, type);
+		log.debug(requestUrl);
+		requestHeaders.forEach((key, value) -> log.debug(String.format("Ontvangen header '%s' = %s", key, value.stream().collect(Collectors.joining("|")))));
+
 		
 		validateRequest(serviceType, version);
 
@@ -241,7 +250,9 @@ public class Controller implements ErrorController {
 			}
 			
 			headers.setContentType(mediaType);
-			
+
+			headers.forEach((key, value) -> log.debug(String.format("Verstuurde header '%s' = %s", key, value.stream().collect(Collectors.joining("|")))));
+
 			return new ResponseEntity<>(resource, headers, HttpStatus.OK);
 		} catch (WMTSURLException | IOException | WMTSPropertiesException e) {
 			throw new TMSException(e);
@@ -251,7 +262,7 @@ public class Controller implements ErrorController {
 //					.body(String.format("<head><meta http-equiv=\"refresh\" content=\"0; url=%s\" /></head>",
 //							createWMTSURL(serviceType, tileMap, Integer.parseInt(x), Integer.parseInt(y),
 //									Integer.parseInt(z), wmtsBaseUrl, wmtsVersion)));
-		
+
 	}
 
 	private String createWMTSURL(String serviceType, TileMap tileMap, Tile tile, String wmtsBaseUrl,
