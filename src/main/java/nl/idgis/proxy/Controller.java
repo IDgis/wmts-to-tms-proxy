@@ -126,7 +126,7 @@ public class Controller implements ErrorController {
 		
 		validateRequest(serviceType, version);
 
-		final String filePath = String.format("%s/%s.xml", TILE_MAPS_PATH, tileMap.replace(":", "%3A"));
+		final String filePath = String.format("%s/%s.xml", TILE_MAPS_PATH, tileMap);
 		
 		String xml;
 		
@@ -211,7 +211,7 @@ public class Controller implements ErrorController {
 		
 		tile = new Tile(ix, iy, iz);
 		
-		WMTSProperties wmtsProps = WMTSPropertiesContainer.getProperties(tileMapString.replace(":", "%3A"));
+		WMTSProperties wmtsProps = WMTSPropertiesContainer.getProperties(tileMapString);
 		
 		if (wmtsProps == null) {
 			return ResponseEntity.badRequest().body(String.format("TileMap %s not found", tileMapString));
