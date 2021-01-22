@@ -108,7 +108,7 @@ public class Controller implements ErrorController {
                 try {
                     in.close();
                 } catch (IOException e) {
-                    log.warn("input stream from %s was not closed: %s", filePath, e.getMessage());
+                    log.warn(String.format("input stream from %s was not closed: %s", filePath, e.getMessage()));
                 }
             }
         }
@@ -155,7 +155,7 @@ public class Controller implements ErrorController {
 				try {
 					in.close();
 				} catch (IOException e) {
-					log.warn("input stream from %s was not closed: %s", filePath, e.getMessage());
+					log.warn(String.format("input stream from %s was not closed: %s", filePath, e.getMessage()));
 				}
 			}
 		}
