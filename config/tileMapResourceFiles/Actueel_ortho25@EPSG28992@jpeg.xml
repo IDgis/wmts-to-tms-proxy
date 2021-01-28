@@ -3,7 +3,7 @@
 	<Title>Luchtfoto Actueel Ortho 25cm RGB</Title>
 	<Abstract/>
 	<SRS>EPSG:28992</SRS>
-	<BoundingBox minx="-1.65729160235" miny="48.0405018704" maxx="12.4317272654" maxy="56.1105896442"/>
+	<BoundingBox minx="-285401.92" miny="22598.08" maxx="595401.92" maxy="903401.92"/>
 	<Origin x="-285401.92" y="22598.08"/>
 	<TileFormat width="256" height="256" mime-type="image/jpeg" extension="jpeg"/>
 	<TileSets profile="local">
