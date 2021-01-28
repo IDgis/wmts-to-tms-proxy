@@ -22,5 +22,6 @@
 		<TileSet href="https://pdok-tms.idgis.nl/TMS/1.0.0/Actueel_ortho25@EPSG28992@jpeg/12" units-per-pixel="0.84" order="12"/>
 		<TileSet href="https://pdok-tms.idgis.nl/TMS/1.0.0/Actueel_ortho25@EPSG28992@jpeg/13" units-per-pixel="0.42" order="13"/>
 		<TileSet href="https://pdok-tms.idgis.nl/TMS/1.0.0/Actueel_ortho25@EPSG28992@jpeg/14" units-per-pixel="0.21" order="14"/>
+		<TileSet href="https://pdok-tms.idgis.nl/TMS/1.0.0/Actueel_ortho25@EPSG28992@jpeg/15" units-per-pixel="0.105" order="15"/>
 	</TileSets>
 </TileMap>
