@@ -216,7 +216,9 @@ public class Controller implements ErrorController {
 		if (wmtsProps == null) {
 			return ResponseEntity.badRequest().body(String.format("TileMap %s not found", tileMapString));
 		}
-		
+
+		HttpURLConnection connection = null;
+
 		try {
 			
 			String url = createWMTSURL(serviceType, tileMap, tile,
@@ -224,7 +226,7 @@ public class Controller implements ErrorController {
 			
 			log.debug(String.format("wmts url: %s", url));
 			
-			HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
+			connection = (HttpURLConnection) new URL(url).openConnection();
 			connection.setRequestMethod("GET");
 			connection.connect();
 			
@@ -233,35 +235,42 @@ public class Controller implements ErrorController {
 			if (responseCode != 200) {
 				throw new WMTSException(responseCode);
 			}
-			
-			InputStream inputStream = connection.getInputStream();
-			InputStreamResource resource = new InputStreamResource(inputStream);
-			
-			HttpHeaders headers = new HttpHeaders();
-			
-			MediaType mediaType;
-			
-			if (type.equalsIgnoreCase("jpeg") || type.equalsIgnoreCase("jpg")) {
-				mediaType = MediaType.IMAGE_JPEG;
-			} else if (type.equalsIgnoreCase("png")) {
-				mediaType = MediaType.IMAGE_PNG;
-			} else {
-				mediaType = MediaType.APPLICATION_OCTET_STREAM;
+
+			byte[] buf = new byte[80];
+			try(
+				InputStream inputStream = connection.getInputStream();
+				ByteArrayOutputStream outputBuffer = new ByteArrayOutputStream()) {
+
+				int retval;
+				while ((retval = inputStream.read(buf)) != -1) {
+					outputBuffer.write(buf, 0, retval);
+				}
+
+				HttpHeaders headers = new HttpHeaders();
+
+				MediaType mediaType;
+
+				if (type.equalsIgnoreCase("jpeg") || type.equalsIgnoreCase("jpg")) {
+					mediaType = MediaType.IMAGE_JPEG;
+				} else if (type.equalsIgnoreCase("png")) {
+					mediaType = MediaType.IMAGE_PNG;
+				} else {
+					mediaType = MediaType.APPLICATION_OCTET_STREAM;
+				}
+
+				headers.setContentType(mediaType);
+
+				headers.forEach((key, value) -> log.debug(String.format("Verstuurde header '%s' = %s", key, value.stream().collect(Collectors.joining("|")))));
+
+				return new ResponseEntity<>(outputBuffer.toByteArray(), headers, HttpStatus.OK);
 			}
-			
-			headers.setContentType(mediaType);
-
-			headers.forEach((key, value) -> log.debug(String.format("Verstuurde header '%s' = %s", key, value.stream().collect(Collectors.joining("|")))));
-
-			return new ResponseEntity<>(resource, headers, HttpStatus.OK);
 		} catch (WMTSURLException | IOException | WMTSPropertiesException e) {
 			throw new TMSException(e);
+		} finally {
+			if (connection != null) {
+				connection.disconnect();
+			}
 		}
-			
-//			return ResponseEntity.status(HttpStatus.PERMANENT_REDIRECT)
-//					.body(String.format("<head><meta http-equiv=\"refresh\" content=\"0; url=%s\" /></head>",
-//							createWMTSURL(serviceType, tileMap, Integer.parseInt(x), Integer.parseInt(y),
-//									Integer.parseInt(z), wmtsBaseUrl, wmtsVersion)));
 
 	}
 
