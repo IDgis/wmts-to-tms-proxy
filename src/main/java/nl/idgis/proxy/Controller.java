@@ -75,7 +75,7 @@ public class Controller implements ErrorController {
         return ERROR_PATH;
     }
 	
-	@RequestMapping(value = "/{serviceType}/{version}")
+	@RequestMapping(value = "/{serviceType}/{version:.+}")
 	public ResponseEntity<String> doGetTMSCapabilities(@PathVariable String serviceType, @PathVariable String version) throws TMRFException {
 		log.info("requesting tile map capabilities");
 		
