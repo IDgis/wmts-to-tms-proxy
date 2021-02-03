@@ -8,6 +8,7 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.http.HttpServletRequest;
@@ -24,7 +25,9 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.request.RequestAttributes;
@@ -72,9 +75,9 @@ public class Controller implements ErrorController {
         return ERROR_PATH;
     }
 	
-	@RequestMapping(value = "/{serviceType}/{version}")
+	@RequestMapping(value = "/{serviceType}/{version:.+}")
 	public ResponseEntity<String> doGetTMSCapabilities(@PathVariable String serviceType, @PathVariable String version) throws TMRFException {
-		log.info("requesting tile map capabilities");
+		log.info("Requesting server capabilities");
 		
 		validateRequest(serviceType, version);
 
@@ -105,7 +108,7 @@ public class Controller implements ErrorController {
                 try {
                     in.close();
                 } catch (IOException e) {
-                    log.warn("input stream from %s was not closed: %s", filePath, e.getMessage());
+                    log.warn(String.format("input stream from %s was not closed: %s", filePath, e.getMessage()));
                 }
             }
         }
@@ -119,11 +122,11 @@ public class Controller implements ErrorController {
 	@RequestMapping(value = "/{serviceType}/{version}/{tileMap}")
 	public ResponseEntity<String> doGetTileMapCapabilities(@PathVariable String serviceType,
 			@PathVariable String version, @PathVariable String tileMap) throws TMRFException {
-		log.info(String.format("requesting tile map resource file for: %s", tileMap));
+		log.info(String.format("Requesting tile map resource file for: %s", tileMap));
 		
 		validateRequest(serviceType, version);
 
-		final String filePath = String.format("%s/%s.xml", TILE_MAPS_PATH, tileMap.replace(":", "%3A"));
+		final String filePath = String.format("%s/%s.xml", TILE_MAPS_PATH, tileMap);
 		
 		String xml;
 		
@@ -152,7 +155,7 @@ public class Controller implements ErrorController {
 				try {
 					in.close();
 				} catch (IOException e) {
-					log.warn("input stream from %s was not closed: %s", filePath, e.getMessage());
+					log.warn(String.format("input stream from %s was not closed: %s", filePath, e.getMessage()));
 				}
 			}
 		}
@@ -163,10 +166,15 @@ public class Controller implements ErrorController {
 	}
 
 	@RequestMapping(value = "/{serviceType}/{version}/{tileMapString}/{z}/{x}/{y}.{type}")
-	public ResponseEntity<?> doGetTile(@PathVariable String serviceType, @PathVariable String version,
-			@PathVariable String tileMapString, @PathVariable String z, @PathVariable String x, @PathVariable String y,
-			@PathVariable String type) {
-		log.info(String.format("requesting image for: %s", tileMapString));
+	public ResponseEntity<?> doGetTile(@RequestHeader MultiValueMap<String, String> requestHeaders, @PathVariable String serviceType, @PathVariable String version,
+									   @PathVariable String tileMapString, @PathVariable String z, @PathVariable String x, @PathVariable String y,
+									   @PathVariable String type) {
+
+		// Log request url and headers
+		String requestUrl = String.format("Requesting image: /%s/%s/%s/%s/%s/%s.%s", serviceType, version, tileMapString, z, x, y, type);
+		log.info(requestUrl);
+		requestHeaders.forEach((key, value) -> log.debug(String.format("Received header: '%s' = %s", key, value.stream().collect(Collectors.joining("|")))));
+
 		
 		validateRequest(serviceType, version);
 
@@ -194,20 +202,18 @@ public class Controller implements ErrorController {
 		final int iy = Integer.parseInt(y);
 		final int iz = Integer.parseInt(z);
 
-		log.debug(String.format("tms x: %s", x));
-		log.debug(String.format("tms y: %s", y));
-		log.debug(String.format("tms z: %s", z));
-		
 		Tile tile;
 		
 		tile = new Tile(ix, iy, iz);
 		
-		WMTSProperties wmtsProps = WMTSPropertiesContainer.getProperties(tileMapString.replace(":", "%3A"));
+		WMTSProperties wmtsProps = WMTSPropertiesContainer.getProperties(tileMapString);
 		
 		if (wmtsProps == null) {
 			return ResponseEntity.badRequest().body(String.format("TileMap %s not found", tileMapString));
 		}
-		
+
+		HttpURLConnection connection = null;
+
 		try {
 			
 			String url = createWMTSURL(serviceType, tileMap, tile,
@@ -215,7 +221,7 @@ public class Controller implements ErrorController {
 			
 			log.debug(String.format("wmts url: %s", url));
 			
-			HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
+			connection = (HttpURLConnection) new URL(url).openConnection();
 			connection.setRequestMethod("GET");
 			connection.connect();
 			
@@ -224,34 +230,43 @@ public class Controller implements ErrorController {
 			if (responseCode != 200) {
 				throw new WMTSException(responseCode);
 			}
-			
-			InputStream inputStream = connection.getInputStream();
-			InputStreamResource resource = new InputStreamResource(inputStream);
-			
-			HttpHeaders headers = new HttpHeaders();
-			
-			MediaType mediaType;
-			
-			if (type.equalsIgnoreCase("jpeg") || type.equalsIgnoreCase("jpg")) {
-				mediaType = MediaType.IMAGE_JPEG;
-			} else if (type.equalsIgnoreCase("png")) {
-				mediaType = MediaType.IMAGE_PNG;
-			} else {
-				mediaType = MediaType.APPLICATION_OCTET_STREAM;
+
+			byte[] buf = new byte[80];
+			try(
+				InputStream inputStream = connection.getInputStream();
+				ByteArrayOutputStream outputBuffer = new ByteArrayOutputStream()) {
+
+				int retval;
+				while ((retval = inputStream.read(buf)) != -1) {
+					outputBuffer.write(buf, 0, retval);
+				}
+
+				HttpHeaders headers = new HttpHeaders();
+
+				MediaType mediaType;
+
+				if (type.equalsIgnoreCase("jpeg") || type.equalsIgnoreCase("jpg")) {
+					mediaType = MediaType.IMAGE_JPEG;
+				} else if (type.equalsIgnoreCase("png")) {
+					mediaType = MediaType.IMAGE_PNG;
+				} else {
+					mediaType = MediaType.APPLICATION_OCTET_STREAM;
+				}
+
+				headers.setContentType(mediaType);
+
+				headers.forEach((key, value) -> log.debug(String.format("Verstuurde header '%s' = %s", key, value.stream().collect(Collectors.joining("|")))));
+
+				return new ResponseEntity<>(outputBuffer.toByteArray(), headers, HttpStatus.OK);
 			}
-			
-			headers.setContentType(mediaType);
-			
-			return new ResponseEntity<>(resource, headers, HttpStatus.OK);
 		} catch (WMTSURLException | IOException | WMTSPropertiesException e) {
 			throw new TMSException(e);
+		} finally {
+			if (connection != null) {
+				connection.disconnect();
+			}
 		}
-			
-//			return ResponseEntity.status(HttpStatus.PERMANENT_REDIRECT)
-//					.body(String.format("<head><meta http-equiv=\"refresh\" content=\"0; url=%s\" /></head>",
-//							createWMTSURL(serviceType, tileMap, Integer.parseInt(x), Integer.parseInt(y),
-//									Integer.parseInt(z), wmtsBaseUrl, wmtsVersion)));
-		
+
 	}
 
 	private String createWMTSURL(String serviceType, TileMap tileMap, Tile tile, String wmtsBaseUrl,
@@ -284,8 +299,6 @@ public class Controller implements ErrorController {
 			throw new WMTSURLException("TileMap file type is null or empty");
 		}
 
-		log.debug("creating WMTS URL with base URL: " + wmtsBaseUrl);
-
 		if (tileMatrixSet == null) {
 			throw new WMTSURLException(String.format("TileMatrixSet not resolved with SRS %s", tileMapSRS));
 		}
@@ -295,10 +308,6 @@ public class Controller implements ErrorController {
 		int row = Utils.wmtsRow(tile.getY(), tile.getZ());
 		int col = tile.getX();
 		String tileMatrix = tileMap.getMatrix(tile.getZ());
-		
-		log.debug(String.format("wmts row: %d", row));
-		log.debug(String.format("wmts col: %d", col));
-		log.debug(String.format("wmts tileMatrix: %s", tileMatrix));
 
 		wmtsUrl += String.format(
 				"SERVICE=WMTS&VERSION=%1$s&REQUEST=GetTile&LAYER=%2$s&STYLE=default&TILEMATRIXSET=%3$s&TILEMATRIX=%4$s&TILEROW=%5$d&TILECOL=%6$d&FORMAT=image/%7$s",

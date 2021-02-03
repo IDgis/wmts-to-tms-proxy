@@ -36,6 +36,9 @@ public class TileMap {
 	}
 
 	public String getSrs() {
+		if (srs.startsWith("EPSG")) {
+			return "EPSG:" + srs.substring(4);
+		}
 		return srs;
 	}
 
