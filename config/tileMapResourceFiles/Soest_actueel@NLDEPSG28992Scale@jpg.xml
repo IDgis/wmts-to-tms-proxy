@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<TileMap version="1.0.0" tilemapservice="http://soest.ecw-hosting.nl/tms/TMS/1.0.0">
+<TileMap version="1.0.0" tilemapservice="https://soest.ecw-hosting.nl/tms/TMS/1.0.0/">
     <Title>Luchtfoto Soest Actueel</Title>
     <Abstract/>
     <SRS>EPSG:28992</SRS>
-    <BoundingBox minx="-285401.92" miny="22598.08" maxx="595401.9199999999" maxy="903401.9199999999"/>
+    <BoundingBox minx="-285401.92" miny="22598.08" maxx="595401.92" maxy="903401.92"/>
     <Origin x="-285401.92" y="22598.08"/>
     <TileFormat width="256" height="256" mime-type="image/jpg" extension="jpg"/>
     <TileSets profile="local">
