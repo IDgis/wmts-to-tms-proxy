@@ -77,7 +77,7 @@ public class Controller implements ErrorController {
 	
 	@RequestMapping(value = "/{serviceType}/{version:.+}")
 	public ResponseEntity<String> doGetTMSCapabilities(@PathVariable String serviceType, @PathVariable String version) throws TMRFException {
-		log.info("requesting tile map capabilities");
+		log.info("Requesting server capabilities");
 		
 		validateRequest(serviceType, version);
 
@@ -122,7 +122,7 @@ public class Controller implements ErrorController {
 	@RequestMapping(value = "/{serviceType}/{version}/{tileMap}")
 	public ResponseEntity<String> doGetTileMapCapabilities(@PathVariable String serviceType,
 			@PathVariable String version, @PathVariable String tileMap) throws TMRFException {
-		log.info(String.format("requesting tile map resource file for: %s", tileMap));
+		log.info(String.format("Requesting tile map resource file for: %s", tileMap));
 		
 		validateRequest(serviceType, version);
 
@@ -169,12 +169,11 @@ public class Controller implements ErrorController {
 	public ResponseEntity<?> doGetTile(@RequestHeader MultiValueMap<String, String> requestHeaders, @PathVariable String serviceType, @PathVariable String version,
 									   @PathVariable String tileMapString, @PathVariable String z, @PathVariable String x, @PathVariable String y,
 									   @PathVariable String type) {
-		log.info(String.format("requesting image for: %s", tileMapString));
 
 		// Log request url and headers
-		String requestUrl = String.format("request: /%s/%s/%s/%s/%s/%s.%s", serviceType, version, tileMapString, z, x, y, type);
-		log.debug(requestUrl);
-		requestHeaders.forEach((key, value) -> log.debug(String.format("Ontvangen header '%s' = %s", key, value.stream().collect(Collectors.joining("|")))));
+		String requestUrl = String.format("Requesting image: /%s/%s/%s/%s/%s/%s.%s", serviceType, version, tileMapString, z, x, y, type);
+		log.info(requestUrl);
+		requestHeaders.forEach((key, value) -> log.debug(String.format("Received header: '%s' = %s", key, value.stream().collect(Collectors.joining("|")))));
 
 		
 		validateRequest(serviceType, version);
@@ -203,10 +202,6 @@ public class Controller implements ErrorController {
 		final int iy = Integer.parseInt(y);
 		final int iz = Integer.parseInt(z);
 
-		log.debug(String.format("tms x: %s", x));
-		log.debug(String.format("tms y: %s", y));
-		log.debug(String.format("tms z: %s", z));
-		
 		Tile tile;
 		
 		tile = new Tile(ix, iy, iz);
@@ -304,8 +299,6 @@ public class Controller implements ErrorController {
 			throw new WMTSURLException("TileMap file type is null or empty");
 		}
 
-		log.debug("creating WMTS URL with base URL: " + wmtsBaseUrl);
-
 		if (tileMatrixSet == null) {
 			throw new WMTSURLException(String.format("TileMatrixSet not resolved with SRS %s", tileMapSRS));
 		}
@@ -315,10 +308,6 @@ public class Controller implements ErrorController {
 		int row = Utils.wmtsRow(tile.getY(), tile.getZ());
 		int col = tile.getX();
 		String tileMatrix = tileMap.getMatrix(tile.getZ());
-		
-		log.debug(String.format("wmts row: %d", row));
-		log.debug(String.format("wmts col: %d", col));
-		log.debug(String.format("wmts tileMatrix: %s", tileMatrix));
 
 		wmtsUrl += String.format(
 				"SERVICE=WMTS&VERSION=%1$s&REQUEST=GetTile&LAYER=%2$s&STYLE=default&TILEMATRIXSET=%3$s&TILEMATRIX=%4$s&TILEROW=%5$d&TILECOL=%6$d&FORMAT=image/%7$s",
