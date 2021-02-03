@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<TileMap version="1.0.0" tilemapservice="http://soest.ecw-hosting.nl/tms/TMS/1.0.0/">
+<TileMap version="1.0.0" tilemapservice="https://soest.ecw-hosting.nl/tms/TMS/1.0.0/">
     <Title>Luchtfoto Soest Actueel</Title>
     <Abstract/>
     <SRS>EPSG:28992</SRS>
