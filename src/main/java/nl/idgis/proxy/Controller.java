@@ -172,7 +172,7 @@ public class Controller implements ErrorController {
 
 		// Log request url and headers
 		String requestUrl = String.format("Requesting image: /%s/%s/%s/%s/%s/%s.%s", serviceType, version, tileMapString, z, x, y, type);
-		log.info(requestUrl);
+		log.debug(requestUrl);
 		requestHeaders.forEach((key, value) -> log.debug(String.format("Received header: '%s' = %s", key, value.stream().collect(Collectors.joining("|")))));
 
 		
