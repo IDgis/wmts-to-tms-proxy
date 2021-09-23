@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TileMap version="1.0.0" tilemapservice="https://pdok-tms.idgis.nl/TMS/1.0.0/">
+    <Title>top25raster</Title>
+    <Abstract/>
+    <SRS>EPSG:28992</SRS>
+    <BoundingBox minx="-285401.92" miny="22598.08" maxx="595401.92" maxy="903401.92"/>
+    <Origin x="-285401.92" y="22598.08"/>
+    <TileFormat width="256" height="256" mime-type="image/png" extension="png"/>
+    <TileSets profile="local">
+        <TileSet href="https://pdok-tms.idgis.nl/TMS/1.0.0/top25raster@EPSG28992@png/0" units-per-pixel="3440.64" order="0"/>
+        <TileSet href="https://pdok-tms.idgis.nl/TMS/1.0.0/top25raster@EPSG28992@png/1" units-per-pixel="1720.32" order="1"/>
+        <TileSet href="https://pdok-tms.idgis.nl/TMS/1.0.0/top25raster@EPSG28992@png/2" units-per-pixel="860.16" order="2"/>
+        <TileSet href="https://pdok-tms.idgis.nl/TMS/1.0.0/top25raster@EPSG28992@png/3" units-per-pixel="430.08" order="3"/>
+        <TileSet href="https://pdok-tms.idgis.nl/TMS/1.0.0/top25raster@EPSG28992@png/4" units-per-pixel="215.04" order="4"/>
+        <TileSet href="https://pdok-tms.idgis.nl/TMS/1.0.0/top25raster@EPSG28992@png/5" units-per-pixel="107.52" order="5"/>
+        <TileSet href="https://pdok-tms.idgis.nl/TMS/1.0.0/top25raster@EPSG28992@png/6" units-per-pixel="53.76" order="6"/>
+        <TileSet href="https://pdok-tms.idgis.nl/TMS/1.0.0/top25raster@EPSG28992@png/7" units-per-pixel="26.88" order="7"/>
+        <TileSet href="https://pdok-tms.idgis.nl/TMS/1.0.0/top25raster@EPSG28992@png/8" units-per-pixel="13.44" order="8"/>
+        <TileSet href="https://pdok-tms.idgis.nl/TMS/1.0.0/top25raster@EPSG28992@png/9" units-per-pixel="6.72" order="9"/>
+        <TileSet href="https://pdok-tms.idgis.nl/TMS/1.0.0/top25raster@EPSG28992@png/10" units-per-pixel="3.36" order="10"/>
+        <TileSet href="https://pdok-tms.idgis.nl/TMS/1.0.0/top25raster@EPSG28992@png/11" units-per-pixel="1.68" order="11"/>
+        <TileSet href="https://pdok-tms.idgis.nl/TMS/1.0.0/top25raster@EPSG28992@png/12" units-per-pixel="0.84" order="12"/>
+        <TileSet href="https://pdok-tms.idgis.nl/TMS/1.0.0/top25raster@EPSG28992@png/13" units-per-pixel="0.42" order="13"/>
+        <TileSet href="https://pdok-tms.idgis.nl/TMS/1.0.0/top25raster@EPSG28992@png/14" units-per-pixel="0.21" order="14"/>
+        <TileSet href="https://pdok-tms.idgis.nl/TMS/1.0.0/top25raster@EPSG28992@png/15" units-per-pixel="0.105" order="15"/>
+        <TileSet href="https://pdok-tms.idgis.nl/TMS/1.0.0/top25raster@EPSG28992@png/16" units-per-pixel="0.0525" order="16"/>
+    </TileSets>
+</TileMap>
