@@ -90,6 +90,7 @@ public class Application {
 				String version = props.getProperty(WMTSProperties.VERSION);
 				String tileMap = file.getName().substring(0, file.getName().lastIndexOf('.'));
 				String matrixMapping = props.getProperty(WMTSProperties.MATRIX_MAPPING);
+				String layerName = props.getProperty(WMTSProperties.LAYER_NAME);
 				
 				if (baseUrl == null || baseUrl.isEmpty()) {
 					throw new WMTSPropertiesException(String.format("%s property is null or empty", WMTSProperties.BASE_URL));
@@ -104,12 +105,17 @@ public class Application {
 					log.warn(String.format("%s property is null or empty (set to default 0=0;1=1 etc)", WMTSProperties.VERSION));
 					matrixMapping = "0=0;1=1;2=2;3=3;4=4;5=5;6=6;7=7;8=8;9=9;10=10;11=11;12=12;13=13;14=14;15=15;16=16";
 				}
+
+				if (layerName == null || layerName.isEmpty()) {
+					throw new WMTSPropertiesException(String.format("%s property is null or empty", WMTSProperties.LAYER_NAME));
+				}
 				
 				WMTSProperties wmtsProps = new WMTSProperties();
 				wmtsProps.setBaseUrl(baseUrl);
 				wmtsProps.setVersion(version);
 				wmtsProps.setTileMap(tileMap);
 				wmtsProps.setMatrixMapping(matrixMapping);
+				wmtsProps.setLayerName(layerName);
 				
 				WMTSPropertiesContainer.addProperties(wmtsProps);
 			}
