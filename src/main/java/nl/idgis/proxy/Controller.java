@@ -173,7 +173,7 @@ public class Controller implements ErrorController {
 		// Log request url and headers
 		String requestUrl = String.format("Requesting image: /%s/%s/%s/%s/%s/%s.%s", serviceType, version, tileMapString, z, x, y, type);
 		log.debug(requestUrl);
-		requestHeaders.forEach((key, value) -> log.debug(String.format("Received header: '%s' = %s", key, value.stream().collect(Collectors.joining("|")))));
+		requestHeaders.forEach((key, value) -> log.debug(String.format("Received header: '%s' = %s", key, String.join("|", value))));
 
 		
 		validateRequest(serviceType, version);
@@ -216,8 +216,8 @@ public class Controller implements ErrorController {
 
 		try {
 			
-			String url = createWMTSURL(serviceType, tileMap, tile,
-				wmtsProps.getBaseUrl(), wmtsProps.getVersion(), tileMap.getSrs());
+			String url = createWMTSURL(tileMap, tile,
+				wmtsProps.getBaseUrl(), wmtsProps.getVersion(), tileMap.getSrs(), wmtsProps.getLayerName());
 			
 			log.debug(String.format("wmts url: %s", url));
 			
@@ -255,7 +255,7 @@ public class Controller implements ErrorController {
 
 				headers.setContentType(mediaType);
 
-				headers.forEach((key, value) -> log.debug(String.format("Verstuurde header '%s' = %s", key, value.stream().collect(Collectors.joining("|")))));
+				headers.forEach((key, value) -> log.debug(String.format("Verstuurde header '%s' = %s", key, String.join("|", value))));
 
 				return new ResponseEntity<>(outputBuffer.toByteArray(), headers, HttpStatus.OK);
 			}
@@ -269,9 +269,8 @@ public class Controller implements ErrorController {
 
 	}
 
-	private String createWMTSURL(String serviceType, TileMap tileMap, Tile tile, String wmtsBaseUrl,
-			String wmtsVersion, String tileMatrixSet) throws WMTSURLException, WMTSPropertiesException {
-		final String tileMapName = tileMap.getName();
+	private String createWMTSURL(TileMap tileMap, Tile tile, String wmtsBaseUrl,
+			String wmtsVersion, String tileMatrixSet, String wmtsLayerName) throws WMTSURLException, WMTSPropertiesException {
 		final String tileMapSRS = tileMap.getSrs();
 		final String tileMapFileType = tileMap.getFileType();
 
@@ -287,10 +286,6 @@ public class Controller implements ErrorController {
 			throw new WMTSURLException(String.format("wmts.version '%s' in config is not valid", wmtsVersion));
 		}
 
-		if (tileMapName == null || tileMapName.isEmpty()) {
-			throw new WMTSURLException("TileMap name is null or empty");
-		}
-
 		if (tileMapSRS == null || tileMapSRS.isEmpty()) {
 			throw new WMTSURLException("TileMap SRS is null or empty");
 		}
@@ -303,6 +298,10 @@ public class Controller implements ErrorController {
 			throw new WMTSURLException(String.format("TileMatrixSet not resolved with SRS %s", tileMapSRS));
 		}
 
+		if (wmtsLayerName == null || wmtsLayerName.isEmpty()) {
+			throw new NullPointerException("wmts layer name is null or empty");
+		}
+
 		String wmtsUrl = wmtsBaseUrl.endsWith("?") ? wmtsBaseUrl : wmtsBaseUrl + "?";
 		
 		int row = Utils.wmtsRow(tile.getY(), tile.getZ());
@@ -311,7 +310,7 @@ public class Controller implements ErrorController {
 
 		wmtsUrl += String.format(
 				"SERVICE=WMTS&VERSION=%1$s&REQUEST=GetTile&LAYER=%2$s&STYLE=default&TILEMATRIXSET=%3$s&TILEMATRIX=%4$s&TILEROW=%5$d&TILECOL=%6$d&FORMAT=image/%7$s",
-				wmtsVersion, tileMapName, tileMatrixSet, tileMatrix, row, col, tileMapFileType);
+				wmtsVersion, wmtsLayerName, tileMatrixSet, tileMatrix, row, col, tileMapFileType);
 
 		return wmtsUrl;
 	}
