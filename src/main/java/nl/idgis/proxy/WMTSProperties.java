@@ -5,11 +5,13 @@ public class WMTSProperties {
 	public static final String BASE_URL = "baseUrl";
 	public static final String VERSION = "version";
 	public static final String MATRIX_MAPPING = "matrixMapping";
+	public static final String LAYER_NAME = "layerName";
 	
 	private String baseUrl;
 	private String version;
 	private String tileMap;
 	private String matrixMapping;
+	private String layerName;
 
 	public String getBaseUrl() {
 		return baseUrl;
@@ -42,5 +44,12 @@ public class WMTSProperties {
 	public void setMatrixMapping(String matrixMapping) {
 		this.matrixMapping = matrixMapping;
 	}
-	
+
+	public String getLayerName() {
+		return layerName;
+	}
+
+	public void setLayerName(String layerName) {
+		this.layerName = layerName;
+	}
 }
