@@ -10,6 +10,7 @@
         <TileMap title="bgtomtrekgericht" srs="EPSG:28992" profile="local" href="https://pdok-tms.idgis.nl/TMS/1.0.0/bgtomtrekgericht@EPSG28992@png"/>
         <TileMap title="bgtpastel" srs="EPSG:28992" profile="local" href="https://pdok-tms.idgis.nl/TMS/1.0.0/bgtpastel@EPSG28992@png"/>
         <TileMap title="bgtstandaard" srs="EPSG:28992" profile="local" href="https://pdok-tms.idgis.nl/TMS/1.0.0/bgtstandaardv2@EPSG28992@png"/>
+        <TileMap title="luchtfotorgb" srs="EPSG:28992" profile="local" href="https://pdok-tms.idgis.nl/TMS/1.0.0/luchtfotorgb@EPSG28992@png" />
         <TileMap title="top10nl" srs="EPSG:28992" profile="local" href="https://pdok-tms.idgis.nl/TMS/1.0.0/top10nlv2@EPSG28992@png"/>
         <TileMap title="top25raster" srs="EPSG:28992" profile="local" href="https://pdok-tms.idgis.nl/TMS/1.0.0/top25raster@EPSG28992@png"/>
         <TileMap title="natura2000" srs="EPSG:28992" profile="local" href="https://pdok-tms.idgis.nl/TMS/1.0.0/natura2000@EPSG28992@png"/>
