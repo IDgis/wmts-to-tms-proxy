@@ -1,0 +1,8 @@
+services:
+  app:
+    restart: always
+    image: idgis/wmts-to-tms-proxy:1.3.2
+    ports:
+      - 80:8080
+    environment:
+      - JAVA_OPTS=-Xmx128M -Duser.timezone=Europe/Amsterdam
