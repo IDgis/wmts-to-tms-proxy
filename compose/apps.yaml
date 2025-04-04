@@ -1,0 +1,14 @@
+services:
+  app:
+    image: idgis/wmts-to-tms-proxy:${APP_VERSION}
+    restart: unless-stopped
+    environment:
+      - JAVA_OPTS=-Xmx128M -Duser.timezone=Europe/Amsterdam
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.viewer.rule=Host(`$DOMAIN`)
+      - traefik.http.routers.viewer.entrypoints=web
+
+networks:
+  default:
+    name: pdok-tms

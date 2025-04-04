@@ -1,0 +1,22 @@
+volumes:
+  traefik-certs:
+
+services:
+  proxy:
+    environment:
+      - TRAEFIK_ENTRYPOINTS_WEBSECURE_ADDRESS=:443
+      - TRAEFIK_ENTRYPOINTS_WEB_HTTP_REDIRECTIONS_ENTRYPOINT_TO=websecure
+      - TRAEFIK_ENTRYPOINTS_WEB_HTTP_REDIRECTIONS_ENTRYPOINT_SCHEME=https
+      - TRAEFIK_CERTIFICATESRESOLVERS_LETSENCRYPT_ACME_HTTPCHALLENGE=true
+      - TRAEFIK_CERTIFICATESRESOLVERS_LETSENCRYPT_ACME_HTTPCHALLENGE_ENTRYPOINT=web
+      - TRAEFIK_CERTIFICATESRESOLVERS_LETSENCRYPT_ACME_EMAIL=acme-support@idgis.nl
+      - TRAEFIK_CERTIFICATESRESOLVERS_LETSENCRYPT_ACME_STORAGE=/certs/acme.json
+    ports:
+      - "443:443"
+    volumes:
+      - traefik-certs:/certs
+
+  app:
+    labels:
+      - traefik.http.routers.viewer.entrypoints=websecure
+      - traefik.http.routers.viewer.tls.certResolver=letsencrypt
