@@ -2,7 +2,7 @@
 
 echo deploying wmts-to-tms-proxy...
 
-export DOMAIN=pdok-tms-tmp.idgis.nl
+export DOMAIN=pdok-tms.idgis.nl
 
 export APP_VERSION=1.3.2
 
