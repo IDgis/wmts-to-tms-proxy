@@ -6,7 +6,7 @@ The frontend of this proxy behaves like a TMS. The back-end talks to a WMTS. Use
 # Installatie
 Bouw de docker image met `./build-docker-image.sh [tag]`
 
-Deploy de applicatie via de repo PlanoView-compose.
+Deploy de applicatie via de compose map in deze repo. Vergeet niet de juiste versie te zetten in de deploy scripts.
 
 # Laag URL aanpassen
 In de map `config/tileMapResourceFiles` staan alle configuratie bestanden voor de verschillende lagen.
