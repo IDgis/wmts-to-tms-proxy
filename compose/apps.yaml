@@ -6,8 +6,8 @@ services:
       - JAVA_OPTS=-Xmx128M -Duser.timezone=Europe/Amsterdam
     labels:
       - traefik.enable=true
-      - traefik.http.routers.viewer.rule=Host(`$DOMAIN`)
-      - traefik.http.routers.viewer.entrypoints=web
+      - traefik.http.routers.app.rule=Host(`$DOMAIN`)
+      - traefik.http.routers.app.entrypoints=web
 
 networks:
   default:

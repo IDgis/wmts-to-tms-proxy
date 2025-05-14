@@ -18,5 +18,5 @@ services:
 
   app:
     labels:
-      - traefik.http.routers.viewer.entrypoints=websecure
-      - traefik.http.routers.viewer.tls.certResolver=letsencrypt
+      - traefik.http.routers.app.entrypoints=websecure
+      - traefik.http.routers.app.tls.certResolver=letsencrypt
